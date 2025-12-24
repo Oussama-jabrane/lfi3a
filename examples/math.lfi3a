@@ -1,0 +1,14 @@
+dir PI = 314159
+dir E = 271828
+
+dalla add(a, b) {
+    rje3 a + b
+}
+
+dalla multiply(a, b) {
+    rje3 a * b
+}
+
+dalla square(x) {
+    rje3 x * x
+}
