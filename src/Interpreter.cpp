@@ -3,8 +3,15 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+#include <fstream>
+#include <filesystem>
+#include "Lexer.hpp"
+#include "Parser.hpp"
 
-void Interpreter::run(const std::vector<ASTNodePtr>& nodes) {
+namespace fs = std::filesystem;
+
+void Interpreter::run(const std::vector<ASTNodePtr>& nodes, const std::string& currentDir) {
+    currentDirectory = currentDir;
     for (const auto& node : nodes) {
         if (hasReturned) break;
         execute(node);
@@ -98,6 +105,18 @@ void Interpreter::execute(const ASTNodePtr& node) {
                 execute(stmt);
                 if (hasReturned) break;
             }
+            break;
+        }
+        
+        case NodeType::IMPORT: {
+            // jib XXXX - import module XXXX.lfi3a
+            loadModule(node->value);
+            break;
+        }
+        
+        case NodeType::IMPORT_FROM: {
+            // man YYY jib XXX - from YYY.lfi3a import XXX
+            loadModuleItem(node->value, node->params[0]);
             break;
         }
         
@@ -288,4 +307,109 @@ std::string Interpreter::toNumber(const std::string& value) {
 
 std::string Interpreter::toString(const std::string& value) {
     return value;
+}
+void Interpreter::loadModule(const std::string& moduleName) {
+    // Check if already imported to prevent cycles
+    if (importedModules.find(moduleName) != importedModules.end()) {
+        return;
+    }
+    
+    // Try to find the module file in the current directory first, then in current working directory
+    std::string filename = moduleName + ".lfi3a";
+    std::string fullPath = filename;
+    
+    if (!currentDirectory.empty()) {
+        fs::path dirPath = fs::path(currentDirectory) / filename;
+        if (fs::exists(dirPath)) {
+            fullPath = dirPath.string();
+        }
+    }
+    
+    std::ifstream file(fullPath);
+    
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open module file '" << filename << "'\n";
+        exit(1);
+    }
+    
+    std::string code((std::istreambuf_iterator<char>(file)),
+                     std::istreambuf_iterator<char>());
+    file.close();
+    
+    // Mark module as imported before parsing to handle circular imports
+    importedModules.insert(moduleName);
+    
+    // Lexer
+    Lexer lexer(code);
+    auto tokens = lexer.tokenize();
+    
+    // Parser
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    
+    // Execute module code (which will populate vars and functions)
+    for (const auto& node : ast) {
+        if (hasReturned) {
+            hasReturned = false;  // Reset return flag for module execution
+        }
+        execute(node);
+    }
+}
+
+void Interpreter::loadModuleItem(const std::string& moduleName, const std::string& itemName) {
+    // Check if already imported to prevent cycles
+    if (importedModules.find(moduleName) != importedModules.end()) {
+        // Module already loaded, item should be available
+        return;
+    }
+    
+    // Try to find the module file in the current directory first, then in current working directory
+    std::string filename = moduleName + ".lfi3a";
+    std::string fullPath = filename;
+    
+    if (!currentDirectory.empty()) {
+        fs::path dirPath = fs::path(currentDirectory) / filename;
+        if (fs::exists(dirPath)) {
+            fullPath = dirPath.string();
+        }
+    }
+    
+    std::ifstream file(fullPath);
+    
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open module file '" << filename << "'\n";
+        exit(1);
+    }
+    
+    std::string code((std::istreambuf_iterator<char>(file)),
+                     std::istreambuf_iterator<char>());
+    file.close();
+    
+    // Mark module as imported before parsing to handle circular imports
+    importedModules.insert(moduleName);
+    
+    // Lexer
+    Lexer lexer(code);
+    auto tokens = lexer.tokenize();
+    
+    // Parser
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    
+    // Execute module code (which will populate vars and functions)
+    for (const auto& node : ast) {
+        if (hasReturned) {
+            hasReturned = false;  // Reset return flag for module execution
+        }
+        execute(node);
+    }
+    
+    // Check if the requested item exists
+    bool found = (vars.find(itemName) != vars.end()) || 
+                 (functions.find(itemName) != functions.end());
+    
+    if (!found) {
+        std::cerr << "Error: Cannot import '" << itemName << "' from module '" << moduleName << "'\n";
+        exit(1);
+    }
 }

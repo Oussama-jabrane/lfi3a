@@ -1,9 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 #include "Lexer.hpp"
 #include "Parser.hpp"
 #include "Interpreter.hpp"
+
+namespace fs = std::filesystem;
 
 static bool endsWith(const std::string &s, const std::string &suffix) {
     return s.size() >= suffix.size() &&
@@ -30,6 +33,11 @@ int main(int argc, char** argv) {
 
     std::string code((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
+    file.close();
+
+    // Get the directory of the input file
+    fs::path filePath(path);
+    std::string fileDir = fs::absolute(filePath).parent_path().string();
 
     // Lexer
     Lexer lexer(code);
@@ -41,7 +49,7 @@ int main(int argc, char** argv) {
 
     // Interpreter
     Interpreter interpreter;
-    interpreter.run(ast);
+    interpreter.run(ast, fileDir);
 
     return 0;
 }

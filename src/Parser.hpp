@@ -26,6 +26,7 @@ private:
     ASTNodePtr statement();
     ASTNodePtr declaration();
     ASTNodePtr varDeclaration();
+    ASTNodePtr importStatement();
     ASTNodePtr ifStatement();
     ASTNodePtr whileStatement();
     ASTNodePtr forStatement();

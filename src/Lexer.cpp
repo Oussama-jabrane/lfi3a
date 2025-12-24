@@ -78,7 +78,9 @@ Token Lexer::identifier() {
         {"rje3", RJE3},
         {"s7i7", S7I7},
         {"ghalat", GHALAT},
-        {"w", W}
+        {"w", W},
+        {"jib", JIB},
+        {"man", MAN}
     };
     
     auto it = keywords.find(result);

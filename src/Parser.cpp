@@ -59,6 +59,10 @@ ASTNodePtr Parser::statement() {
     switch (peek().type) {
         case DIR:
             return varDeclaration();
+        case JIB:
+            return importStatement();
+        case MAN:
+            return importStatement();  // man ... jib ...
         case KTEB:
             return printStatement();
         case ILA:
@@ -92,6 +96,34 @@ ASTNodePtr Parser::varDeclaration() {
     node->children.push_back(value);
     
     return node;
+}
+
+ASTNodePtr Parser::importStatement() {
+    auto node = std::make_shared<ASTNode>();
+    
+    // Check for "man YYY jib XXX" (from YYY import XXX)
+    if (match(MAN)) {
+        Token module = consume(IDENT, "Expected module name after 'man'");
+        consume(JIB, "Expected 'jib' after module name");
+        Token item = consume(IDENT, "Expected import name after 'jib'");
+        
+        node->type = NodeType::IMPORT_FROM;
+        node->value = module.value;  // module name
+        node->params.push_back(item.value);  // imported item
+        
+        return node;
+    }
+    // Check for "jib XXXX" (import XXXX)
+    else if (match(JIB)) {
+        Token module = consume(IDENT, "Expected module name after 'jib'");
+        
+        node->type = NodeType::IMPORT;
+        node->value = module.value;  // module name
+        
+        return node;
+    }
+    
+    throw std::runtime_error("Expected 'jib' or 'man' for import statement");
 }
 
 ASTNodePtr Parser::printStatement() {

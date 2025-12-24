@@ -24,6 +24,8 @@ enum TokenType {
     S7I7,       // true
     GHALAT,     // false
     W,          // and
+    JIB,        // import
+    MAN,        // from (in import statement) like from ... import ...
     
     // Operators
     LPAREN,     // (
