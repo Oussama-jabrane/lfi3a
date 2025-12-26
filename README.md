@@ -293,7 +293,7 @@ ma7ad (s7i7) {
 | `wla` | OR | `a wla b` |
 
 ## ⚠️ Limitations
-<a id="limitations"></a>
+<a id="-limitations"></a>
 
 ### Current Version
 
@@ -340,4 +340,5 @@ LFI3A is released as an educational project. See the project repository for spec
 ---
 
 Created with ❤️ by **Oussama Jabrane**. Inspired by Moroccan culture and a desire to make programming more accessible.
+
 
