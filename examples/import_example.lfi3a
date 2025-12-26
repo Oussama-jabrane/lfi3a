@@ -1,0 +1,13 @@
+jib math
+man utils jib greet
+
+dir result = add(5, 3)
+kteb("5 + 3 = ", result)
+
+dir squared = square(4)
+kteb("4 squared = ", squared)
+
+greet("World")
+
+kteb("PI value: ", PI)
+

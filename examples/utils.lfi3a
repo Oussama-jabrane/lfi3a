@@ -1,0 +1,13 @@
+dalla greet(name) {
+    kteb("Hello, " + name)
+}
+
+dalla double_value(x) {
+    rje3 x + x
+}
+
+dalla is_even(n) {
+    rje3 n
+}
+
+dir VERSION = 100

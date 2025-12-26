@@ -30,7 +30,9 @@ enum class NodeType {
     FUNCTION_DECL,
     RETURN,
     BLOCK,
-    ASSIGNMENT
+    ASSIGNMENT,
+    IMPORT,
+    IMPORT_FROM
 };
 
 struct ASTNode {
