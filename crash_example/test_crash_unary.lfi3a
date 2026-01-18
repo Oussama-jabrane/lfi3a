@@ -1,0 +1,2 @@
+dir str = "crash_me"
+kteb(-str)

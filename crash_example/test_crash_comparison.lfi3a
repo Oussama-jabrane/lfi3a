@@ -1,0 +1,3 @@
+dir a = "hello"
+dir b = "world"
+kteb(a < b)
