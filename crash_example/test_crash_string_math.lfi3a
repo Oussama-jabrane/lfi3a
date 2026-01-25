@@ -1,0 +1,2 @@
+dir x = "hello"
+kteb(x - 5)
